@@ -1,3 +1,4 @@
+
 //
 // Initialize state with beginning items and statuses
 //    status: true => crossed out, false => not marked
@@ -8,7 +9,6 @@ function initialState() {
 
 		// items: [],
 		// status: []
-
 		items: ['apples', 'oranges', 'milk', 'bread'],
 		status: [false, false, true, false]
 	};
@@ -30,7 +30,7 @@ function addItem(liststate, newitem) {
 
 //
 // Cross out an item, ie, reverse it's Boolean status
-//   
+//
 function checkItem(liststate, item) {
 	var i = liststate.items.indexOf(item);
 	liststate.status[i] = !liststate.status[i];
@@ -48,7 +48,7 @@ function deleteItem(liststate, item) {
 	if (liststate.items.length == 0) {
 		return liststate;
 	}
-	// 
+	//
 	// find the item, delete it and its corresponding status
 	//
 	var i = liststate.items.indexOf(item);
@@ -68,16 +68,16 @@ var buildline = function (liststate, item, status) {
 		line = line + " shopping-item_checked";
 	}
 
-	line = line + "'>" + item + "</span>" + 
+	line = line + "'>" + item + "</span>" +
         	"<div class='shopping-item-controls'>" +
           "<button class='shopping-item-toggle'>" +
-          "<span class='button-label'>check</span>" + 
+          "<span class='button-label'>check</span>" +
           "</button><button class='shopping-item-delete'>" +
           "<span class='button-label'>delete</span>" +
           "</button></div></li>";
   //
   //  If the item's status is crossed out then add the crossed style
-  //  
+  //
   return line;
 }
 
@@ -85,18 +85,11 @@ var buildline = function (liststate, item, status) {
 //  Create new HTML code by looping through the state
 //
 function redrawScreen(liststate) {
-	console.log("top of redrawScreen");
 	var p = '';
 	for (var i = 0; i < liststate.items.length; i++) {
-		console.log("in redrawScreen " + i);
-		console.log("item = " + liststate.items[i]);
 		p = p + buildline(liststate, liststate.items[i], liststate.status[i]);
-		console.log("p = " + p);
 	}
-	console.log("writing html: " + p);
-
 	$('.shopping-list').html(p);
-
 }
 
 
@@ -113,7 +106,7 @@ $(function() {
 	var liststate = initialState();  //initialize state with items
 
 	//
-	// Event listener for adding new item 
+	// Event listener for adding new item
 	//
 	$('#js-shopping-list-form').submit(function(event) {
 		event.preventDefault();
@@ -127,24 +120,22 @@ $(function() {
 	//
 	// Event listener to check (cross-out) an existing item
 	//
-	$('.shopping-list').click('.shopping-item-toggle', function(event) {
-		
+	$('.shopping-list').on('click', '.shopping-item-toggle', function(event) {
 		event.preventDefault();
-		console.log("cross-out event fired");
-		checkItem(liststate, $(event.currentTarget.closest('li')).children()[0].innerText);
-		redrawScreen(liststate);  
+		checkItem(liststate, $(event.target.closest('li')).children()[0].innerText);
+		redrawScreen(liststate);
 		console.log("crossout, after redrawScreen");
 	});
 	console.log("outside of crossout");
 	//
 	// Event listener to delete an item
 	//
-	$('.shopping-list').click('.shopping-item-delete', function(event) {
-	
+	$('.shopping-list').on('click', '.shopping-item-delete', function(event) {
+
 	 	event.preventDefault();
 	 	console.log("delete item event fired");
-	 	// deleteItem(liststate, $(this).closest('li').children()[0].innerText);
-	 	// redrawScreen(liststate);
+	 	deleteItem(liststate, $(this).closest('li').children()[0].innerText);
+	 	redrawScreen(liststate);
 	 	console.log("after deleteItem & redraw screen");
 	});
 	console.log("outside of delete event");
