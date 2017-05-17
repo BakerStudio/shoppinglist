@@ -23,7 +23,7 @@ function initialState() {
 //
 function addItem(liststate, newitem) {
 	liststate.items[liststate.items.length] = newitem;
-	liststate.status[liststate.items.length] = false;
+	liststate.status[liststate.status.length] = false;
 	return liststate;
 }
 
@@ -127,11 +127,11 @@ $(function() {
 	//
 	// Event listener to check (cross-out) an existing item
 	//
-	$('.shopping-item-toggle').click(function(event) {
+	$('.shopping-list').click('.shopping-item-toggle', function(event) {
 		
 		event.preventDefault();
 		console.log("cross-out event fired");
-		checkItem(liststate, $(this).closest('li').children()[0].innerText);
+		checkItem(liststate, $(event.currentTarget.closest('li')).children()[0].innerText);
 		redrawScreen(liststate);  
 		console.log("crossout, after redrawScreen");
 	});
@@ -139,7 +139,7 @@ $(function() {
 	//
 	// Event listener to delete an item
 	//
-	$('.shopping-item-delete').click(function(event) {
+	$('.shopping-list').click('.shopping-item-delete', function(event) {
 	
 	 	event.preventDefault();
 	 	console.log("delete item event fired");
