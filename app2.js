@@ -1,143 +1,137 @@
 
 //
 // Initialize state with beginning items and statuses
-//    status: true => crossed out, false => not marked
-//		items array and status array must be kept in lockstep.
+//    status: true => crossed out, false => not crossed
 //
 function initialState() {
-	var liststate = {
-
-		// items: [],
-		// status: []
-		items: ['apples', 'oranges', 'milk', 'bread'],
-		status: [false, false, true, false]
+	var state = {
+        items: [
+                {name: 'apples', status: false},
+                {name: 'oranges', status: false},
+                {name: 'milk', status: true},
+                {name: 'bread', status: false}
+                ]
 	};
-	return liststate;
+	return state;
 }
 
 
 //
-// Add an item. Parameters are (1) current state and (2) the item to
-//    be added. Status always starts as false, ie, not crossed
-// 		out.
+// Add an item to the state object.
 //
-function addItem(liststate, newitem) {
-	liststate.items[liststate.items.length] = newitem;
-	liststate.status[liststate.status.length] = false;
-	return liststate;
+function addItem(state, newitem) {
+	state.items.push(
+			{name: newitem, status: false}
+			)
+	return state;
+}
+
+//
+//  Given an item within the state object, return its index
+//
+function findIndex(state, item) {
+	for (var i=0; i < state.items.length; i++) {
+		if (state.items[i].name == item) {
+			return i;
+		}
+	}
 }
 
 
 //
 // Cross out an item, ie, reverse it's Boolean status
 //
-function checkItem(liststate, item) {
-	var i = liststate.items.indexOf(item);
-	liststate.status[i] = !liststate.status[i];
-	return liststate;
+function checkItem(state, item) {
+	var i = findIndex(state, item);
+	state.items[i].status = !state.items[i].status;
+	return state;
 }
 
 
 //
 //  Delete the item passed as an argument from the state
 //
-function deleteItem(liststate, item) {
-	//
-	// Check for error condition of an empty state
-	//
-	if (liststate.items.length == 0) {
-		return liststate;
-	}
-	//
-	// find the item, delete it and its corresponding status
-	//
-	var i = liststate.items.indexOf(item);
-	liststate.items.splice(i, 1);
-	liststate.status.splice(i, 1);
-	return liststate;
+function deleteItem(state, item) {
+	var i = findIndex(state, item);
+	state.items.splice(i, 1)
+	return state;
 }
+
 
 //
 //  Construct the list element that contains the item
 //
-var buildline = function (liststate, item, status) {
-
+function buildLine(state, index) {
 	var line =  "<li> <span class='shopping-item";
 
-	if (status) {
-		line = line + " shopping-item_checked";
+	//
+	//  If the item's status is true (i.e., crossed out) then add the style class
+	//
+	if (state.items[index].status) {
+		line = line + " shopping-item__checked";
 	}
 
-	line = line + "'>" + item + "</span>" +
-        	"<div class='shopping-item-controls'>" +
-          "<button class='shopping-item-toggle'>" +
-          "<span class='button-label'>check</span>" +
-          "</button><button class='shopping-item-delete'>" +
-          "<span class='button-label'>delete</span>" +
-          "</button></div></li>";
-  //
-  //  If the item's status is crossed out then add the crossed style
-  //
-  return line;
+	line = line + "'>" + state.items[index].name + "</span>" +
+	      	"<div class='shopping-item-controls'>" +
+	        "<button class='shopping-item-toggle'>" +
+	        "<span class='button-label'>check</span>" +
+	        "</button><button class='shopping-item-delete'>" +
+	        "<span class='button-label'>delete</span>" +
+	        "</button></div></li>";
+
+	return line;
 }
 
+
 //
-//  Create new HTML code by looping through the state
+//  Create new HTML code by looping through the state. 
+//	Replace the DOM when finished looping.
 //
-function redrawScreen(liststate) {
+function redrawScreen(state) {
 	var p = '';
-	for (var i = 0; i < liststate.items.length; i++) {
-		p = p + buildline(liststate, liststate.items[i], liststate.status[i]);
+	for (var i = 0; i < state.items.length; i++) {
+		p = p + buildLine(state, i);
 	}
 	$('.shopping-list').html(p);
 }
 
 
-
 //
-// Mainline -- event listeners
-//		Perform the action to update the state and then
+// 	Mainline -- event listeners
+//	Perform the action to update the state and then
 //		redraw the screen
 //
 $(function() {
 	'use strict';
 
-	//var liststate = {};						// define state as an object
-	var liststate = initialState();  //initialize state with items
+	var state = initialState();  //initialize state with existing items
 
 	//
 	// Event listener for adding new item
 	//
 	$('#js-shopping-list-form').submit(function(event) {
 		event.preventDefault();
-		liststate = addItem(liststate, $('#shopping-list-entry').val());
-		console.log("after add " + liststate.items + ' ' + liststate.status);
-		console.log("items length = " + liststate.items.length);
-		redrawScreen(liststate);
+		state = addItem(state, $('#shopping-list-entry').val());
+		redrawScreen(state);
+		this.reset();
 	});
-	console.log("outside of additem");
 
 	//
 	// Event listener to check (cross-out) an existing item
 	//
 	$('.shopping-list').on('click', '.shopping-item-toggle', function(event) {
 		event.preventDefault();
-		checkItem(liststate, $(event.target.closest('li')).children()[0].innerText);
-		redrawScreen(liststate);
-		console.log("crossout, after redrawScreen");
+		checkItem(state, $(event.target.closest('li')).children()[0].innerText);
+		redrawScreen(state);
 	});
-	console.log("outside of crossout");
+
 	//
 	// Event listener to delete an item
 	//
 	$('.shopping-list').on('click', '.shopping-item-delete', function(event) {
-
 	 	event.preventDefault();
-	 	console.log("delete item event fired");
-	 	deleteItem(liststate, $(this).closest('li').children()[0].innerText);
-	 	redrawScreen(liststate);
-	 	console.log("after deleteItem & redraw screen");
+	 	deleteItem(state, $(this).closest('li').children()[0].innerText);
+	 	redrawScreen(state);
 	});
-	console.log("outside of delete event");
 
 })
