@@ -29,33 +29,33 @@ function addItem(state, newitem) {
 //
 //  Given an item within the state object, return its index
 //
-function findIndex(state, item) {
-	for (var i=0; i < state.items.length; i++) {
-		if (state.items[i].name == item) {
-			return i;
-		}
-	}
-}
+// function findIndex(state, item) {
+// 	for (var i=0; i < state.items.length; i++) {
+// 		if (state.items[i].name == item) {
+// 			return i;
+// 		}
+// 	}
+// }
 
 
 //
 // Cross out an item, ie, reverse it's Boolean status
 //
-function checkItem(state, item) {
-	var i = findIndex(state, item);
-	state.items[i].status = !state.items[i].status;
-	return state;
-}
+// function checkItem(state, item) {
+// 	var i = findIndex(state, item);
+// 	state.items[i].status = !state.items[i].status;
+// 	return state;
+// }
 
 
 //
 //  Delete the item passed as an argument from the state
 //
-function deleteItem(state, item) {
-	var i = findIndex(state, item);
-	state.items.splice(i, 1)
-	return state;
-}
+// function deleteItem(state, item) {
+// 	var i = findIndex(state, item);
+// 	state.items.splice(i, 1)
+// 	return state;
+// }
 
 
 //
@@ -84,7 +84,7 @@ function buildLine(state, index) {
 
 
 //
-//  Create new HTML code by looping through the state. 
+//  Create new HTML code by looping through the state.
 //	Replace the DOM when finished looping.
 //
 function redrawScreen(state) {
@@ -121,7 +121,14 @@ $(function() {
 	//
 	$('.shopping-list').on('click', '.shopping-item-toggle', function(event) {
 		event.preventDefault();
-		checkItem(state, $(event.target.closest('li')).children()[0].innerText);
+		// checkItem(state, $(event.target.closest('li')).children()[0].innerText);
+		var text = $(event.target.closest('li')).children()[0].innerText;
+		state.items = state.items.map(function(item) {
+			if (item.name === text) {
+				item.status = !item.status
+			}
+			return item;
+		});
 		redrawScreen(state);
 	});
 
@@ -130,7 +137,11 @@ $(function() {
 	//
 	$('.shopping-list').on('click', '.shopping-item-delete', function(event) {
 	 	event.preventDefault();
-	 	deleteItem(state, $(this).closest('li').children()[0].innerText);
+	 	//deleteItem(state, $(this).closest('li').children()[0].innerText);
+		var text = $(this).closest('li').children()[0].innerText
+		state.items = state.items.filter(function(item) {
+			return item.name !== text;
+		})
 	 	redrawScreen(state);
 	});
 
